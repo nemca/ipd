@@ -17,6 +17,7 @@ limitations under the License.
 package handlers
 
 import (
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
@@ -28,7 +29,8 @@ import (
 )
 
 var (
-	ip string = "192.0.2.1"
+	ip      string = "192.0.2.1"
+	localIP string = "127.0.0.1"
 )
 
 var (
@@ -62,6 +64,17 @@ func TestGetIP(t *testing.T) {
 		t.Fatal(err)
 	}
 	assert.Equal(t, ip, string(body))
+
+	req.Header.Del(cfg.HTTP.ForwardedHeader)
+	req.RemoteAddr = fmt.Sprintf("%s:1234", localIP)
+	router(cfg).ServeHTTP(rr, req)
+	body, err = ioutil.ReadAll(rr.Body)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	assert.Equal(t, http.StatusOK, rr.Code)
+	assert.Equal(t, localIP, string(body))
 }
 
 func router(cfg *config.Config) *mux.Router {
