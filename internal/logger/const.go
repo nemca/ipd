@@ -14,29 +14,15 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package middleware
+package logger
 
-import (
-	"net/http"
-
-	"github.com/sirupsen/logrus"
+const (
+	TypeJSON string = "json"
+	TypeText string = "text"
 )
 
-type LogRequestMiddleware struct {
-	logger *logrus.Logger
-}
-
-func NewLogRequestMiddleware(logger *logrus.Logger) *LogRequestMiddleware {
-	return &LogRequestMiddleware{logger: logger}
-}
-
-func (m *LogRequestMiddleware) Use(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		m.logger.WithFields(logrus.Fields{
-			"remote": r.RemoteAddr,
-			"method": r.Method,
-			"url":    r.URL,
-		}).Info()
-		next.ServeHTTP(w, r)
-	})
-}
+const (
+	LevelInfo  string = "info"
+	LevelWarn  string = "warn"
+	LevelError string = "error"
+)
