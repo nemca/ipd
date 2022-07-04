@@ -1,0 +1,7 @@
+http:
+  listen_address: '127.0.0.1'
+  listen_port: '8080'
+  forwarded_header: 'X-Forwarded-For'
+log:
+  type: 'text'
+  level: 'info'

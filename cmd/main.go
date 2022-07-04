@@ -5,29 +5,38 @@ import (
 	"log"
 	"net"
 	"net/http"
+
+	"github.com/nemca/ipd/internal/config"
 )
 
-const (
-	forwarderForHeader string = "X-Forwarder-For"
-	listenPort         int    = 8080
+var (
+	cfg     *config.Config
+	err     error
+	version string = "unknown"
+	build   string = "unknown"
 )
 
 func main() {
+	cfg, err = config.Init(version, build)
+	if err != nil {
+		log.Fatalf("error occurred while reading config: %s\n", err.Error())
+	}
+
 	log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", rootHandler)
 
-	log.Printf("listening on %v\n", listenPort)
+	log.Printf("listening on %s:%s\n", cfg.HTTP.ListenAddress, cfg.HTTP.ListenPort)
 
-	err := http.ListenAndServe(fmt.Sprintf(":%d", listenPort), logRequest(mux))
+	err = http.ListenAndServe(fmt.Sprintf("%s:%s", cfg.HTTP.ListenAddress, cfg.HTTP.ListenPort), logRequest(mux))
 	if err != nil {
 		log.Fatal(err)
 	}
 }
 
 func rootHandler(w http.ResponseWriter, r *http.Request) {
-	forwarderFor := r.Header.Get(forwarderForHeader)
+	forwarderFor := r.Header.Get(cfg.HTTP.ForwardedHeader)
 	if forwarderFor != "" {
 		fmt.Fprintf(w, forwarderFor)
 		return
