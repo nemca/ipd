@@ -2,7 +2,10 @@ module github.com/nemca/ipd
 
 go 1.18
 
-require github.com/spf13/viper v1.12.0
+require (
+	github.com/gorilla/mux v1.8.0
+	github.com/spf13/viper v1.12.0
+)
 
 require (
 	github.com/fsnotify/fsnotify v1.5.4 // indirect
