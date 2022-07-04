@@ -38,6 +38,7 @@ type LogConfig struct {
 
 func Init(version, build string) (*Config, error) {
 	viper.AddConfigPath("configs")
+	viper.AddConfigPath("../../configs")
 	viper.AddConfigPath("/etc/ipd")
 	viper.SetConfigName("ipd")
 	viper.SetConfigType("yaml")
