@@ -1,9 +1,12 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"net/http"
+	"os"
+	"os/signal"
 
 	"github.com/gorilla/mux"
 	"github.com/nemca/ipd/internal/config"
@@ -35,8 +38,27 @@ func main() {
 
 	logger.Infof("listening on %s:%s", cfg.HTTP.ListenAddress, cfg.HTTP.ListenPort)
 
-	err = http.ListenAndServe(fmt.Sprintf("%s:%s", cfg.HTTP.ListenAddress, cfg.HTTP.ListenPort), router)
-	if err != nil {
-		logger.Fatal(err)
+	srv := http.Server{
+		Addr:    fmt.Sprintf("%s:%s", cfg.HTTP.ListenAddress, cfg.HTTP.ListenPort),
+		Handler: router,
 	}
+
+	idleConnectionsClosed := make(chan struct{})
+	go func() {
+		sigint := make(chan os.Signal, 1)
+		signal.Notify(sigint, os.Interrupt)
+		<-sigint
+		if err := srv.Shutdown(context.Background()); err != nil {
+			logger.Errorf("HTTP Server Shutdown Error: %v", err)
+		}
+		close(idleConnectionsClosed)
+	}()
+
+	if err := srv.ListenAndServe(); err != http.ErrServerClosed {
+		logger.Fatalf("HTTP server ListenAndServe Error: %v", err)
+	}
+
+	<-idleConnectionsClosed
+
+	logger.Info("stopped")
 }
