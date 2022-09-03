@@ -22,6 +22,7 @@ import (
 	"net/http"
 
 	"github.com/nemca/ipd/internal/config"
+	"github.com/nemca/ipd/models"
 )
 
 // RootHandler main http handler
@@ -34,9 +35,18 @@ func NewRootHandler(config *config.Config) *RootHandler {
 }
 
 func (h *RootHandler) GetIP(w http.ResponseWriter, r *http.Request) {
+	resp := new(models.Response)
+	toJSON := false
+
+	output := r.URL.Query().Get("output")
+	if output == "json" {
+		toJSON = true
+	}
+
 	forwarderFor := r.Header.Get(h.config.HTTP.ForwardedHeader)
 	if forwarderFor != "" {
-		fmt.Fprintf(w, forwarderFor)
+		resp.IP = forwarderFor
+		fmt.Fprintf(w, resp.Make(toJSON))
 		return
 	}
 
@@ -45,5 +55,6 @@ func (h *RootHandler) GetIP(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	fmt.Fprintf(w, host)
+	resp.IP = host
+	fmt.Fprintf(w, resp.Make(toJSON))
 }
