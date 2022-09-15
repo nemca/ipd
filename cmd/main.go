@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"syscall"
 
 	"github.com/gorilla/mux"
 	"github.com/nemca/ipd/internal/config"
@@ -46,7 +47,7 @@ func main() {
 	idleConnectionsClosed := make(chan struct{})
 	go func() {
 		sigint := make(chan os.Signal, 1)
-		signal.Notify(sigint, os.Interrupt)
+		signal.Notify(sigint, syscall.SIGINT, syscall.SIGTERM)
 		<-sigint
 		if err := srv.Shutdown(context.Background()); err != nil {
 			logger.Errorf("HTTP Server Shutdown Error: %v", err)
