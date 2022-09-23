@@ -16,7 +16,10 @@ limitations under the License.
 
 package config
 
-import "github.com/spf13/viper"
+import (
+	"github.com/spf13/pflag"
+	"github.com/spf13/viper"
+)
 
 type Config struct {
 	HTTP    HTTPConfig `mapstructure:"http"`
@@ -59,6 +62,13 @@ func Init(version, build string) (*Config, error) {
 
 	cfg.Version = version
 	cfg.Build = build
+
+	// Flags
+	var flagVersion bool
+	pflag.BoolVarP(&flagVersion, "version", "v", false, "show version and build info")
+
+	pflag.Parse()
+	viper.BindPFlags(pflag.CommandLine)
 
 	return &cfg, nil
 }
