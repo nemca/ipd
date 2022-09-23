@@ -1,5 +1,4 @@
 * Unit testing
-* Version subcommand
 * Add CLI arguments
 * Docker
-* Build via `goreleaser`
+* Build via `goreleaser` and versioning by git tags

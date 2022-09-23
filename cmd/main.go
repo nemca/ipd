@@ -14,6 +14,7 @@ import (
 	"github.com/nemca/ipd/internal/handlers"
 	"github.com/nemca/ipd/internal/logger"
 	"github.com/nemca/ipd/internal/middleware"
+	"github.com/spf13/viper"
 )
 
 var (
@@ -25,6 +26,11 @@ func main() {
 	cfg, err := config.Init(version, build)
 	if err != nil {
 		log.Fatalf("error occurred while reading config: %s\n", err.Error())
+	}
+	// if version flag is defined shows info and exit
+	if viper.GetBool("version") {
+		fmt.Printf("ipd version %s\ncommit:\t%s\n", version, build)
+		return
 	}
 
 	logger := logger.NewLogger(cfg.Log.Type, cfg.Log.Level)
