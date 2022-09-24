@@ -27,7 +27,7 @@ import (
 )
 
 const (
-	wantVersion string = `{"version":"test","commint":"test"}`
+	wantVersion string = `{"version":"test","commit":"test"}`
 )
 
 func TestGetVersion(t *testing.T) {
