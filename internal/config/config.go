@@ -31,9 +31,9 @@ type Config struct {
 }
 
 type HTTPConfig struct {
-	ListenAddress   string `mapstructure:"listen_address"`
-	ListenPort      string `mapstructure:"listen_port"`
-	ForwardedHeader string `mapstructure:"forwarded_header"`
+	ListenAddress   string `mapstructure:"listen-address"`
+	ListenPort      string `mapstructure:"listen-port"`
+	ForwardedHeader string `mapstructure:"forwarded-header"`
 }
 
 type LogConfig struct {
@@ -49,7 +49,22 @@ func Init(version, build string) (*Config, error) {
 	viper.SetConfigType("yaml")
 
 	// Defaults
-	viper.SetDefault("http.forwarded_header", "X-Forwarded-For")
+	viper.SetDefault("http.listen-address", "127.0.0.1")
+	viper.SetDefault("http.listen-port", "8080")
+	viper.SetDefault("http.forwarded-header", "X-Forwarded-For")
+	viper.SetDefault("log.type", "text")
+	viper.SetDefault("log.level", "info")
+
+	flagset := pflag.NewFlagSet("ipd", pflag.ExitOnError)
+	flagset.BoolP("version", "v", false, "Show version and build info")
+	flagset.StringP("http.listen-address", "l", viper.GetString("http.listen-address"), "Listen address for HTTP requests")
+	flagset.StringP("http.listen-port", "p", viper.GetString("http.listen-port"), "Listen port for HTTP requests")
+	flagset.StringP("http.forwarded-header", "H", viper.GetString("http.forwarded-header"), "HTTP header with real IP, settled by proxy")
+	flagset.StringP("log.type", "T", viper.GetString("log.type"), "Format to write logs. \"json\" or \"text\"")
+	flagset.StringP("log.level", "L", viper.GetString("log.level"), "Log level")
+
+	flagset.Parse(os.Args[1:])
+	viper.BindPFlags(flagset)
 
 	if err := viper.ReadInConfig(); err != nil {
 		return nil, err
@@ -64,15 +79,6 @@ func Init(version, build string) (*Config, error) {
 
 	cfg.Version = version
 	cfg.Build = build
-
-	// Flags
-	var flagVersion bool
-
-	flagset := pflag.NewFlagSet("ipdFlags", pflag.ExitOnError)
-	flagset.BoolVarP(&flagVersion, "version", "v", false, "show version and build info")
-
-	flagset.Parse(os.Args[1:])
-	viper.BindPFlags(flagset)
 
 	return &cfg, nil
 }
