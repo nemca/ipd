@@ -37,11 +37,16 @@ func main() {
 
 	router := mux.NewRouter()
 
+	// Middlewares
 	logMiddleware := middleware.NewLogRequestMiddleware(logger)
+	// Handlers
 	rootHandler := handlers.NewRootHandler(cfg)
+	versionHandler := handlers.NewVersionHandler(cfg)
 
+	// Routing
 	router.Use(logMiddleware.Use)
 	router.HandleFunc("/", rootHandler.GetIP).Methods(http.MethodGet)
+	router.HandleFunc("/version", versionHandler.GetVersion).Methods(http.MethodGet)
 
 	logger.Infof("listening on %s:%s", cfg.HTTP.ListenAddress, cfg.HTTP.ListenPort)
 
