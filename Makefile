@@ -1,5 +1,5 @@
 PROJECTNAME := ipd
-VERSION := $(shell cat VERSION)
+VERSION := $(shell git tag --sort=-creatordate | tail -n 1)
 BUILD := $(shell git rev-parse --short HEAD)
 SHELL := /bin/bash
 
