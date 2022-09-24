@@ -17,6 +17,8 @@ limitations under the License.
 package config
 
 import (
+	"flag"
+
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 )
@@ -65,7 +67,10 @@ func Init(version, build string) (*Config, error) {
 
 	// Flags
 	var flagVersion bool
-	pflag.BoolVarP(&flagVersion, "version", "v", false, "show version and build info")
+
+	flagset := pflag.NewFlagSet("goFlags", pflag.ExitOnError)
+	flagset.AddGoFlagSet(flag.CommandLine)
+	flagset.BoolVarP(&flagVersion, "version", "v", false, "show version and build info")
 
 	pflag.Parse()
 	viper.BindPFlags(pflag.CommandLine)

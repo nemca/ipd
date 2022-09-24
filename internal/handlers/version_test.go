@@ -17,69 +17,38 @@ limitations under the License.
 package handlers
 
 import (
-	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
-	"github.com/gorilla/mux"
 	"github.com/nemca/ipd/internal/config"
 	"gotest.tools/assert"
 )
 
-var (
-	ip      string = "192.0.2.1"
-	localIP string = "127.0.0.1"
+const (
+	wantVersion string = `{"version":"test","commint":"test"}`
 )
 
-var (
-	version string = "test"
-	build   string = "test"
-)
-
-func TestGetIP(t *testing.T) {
+func TestGetVersion(t *testing.T) {
 	cfg, err := config.Init(version, build)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	req, err := http.NewRequest("GET", "/", nil)
+	req, err := http.NewRequest("GET", "/version", nil)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	rr := httptest.NewRecorder()
 
-	cfg.HTTP.ForwardedHeader = "X-Forwarded-For"
-	req.Header.Add(cfg.HTTP.ForwardedHeader, ip)
-
-	// Our handlers satisfy http.Handler, so we can call their ServeHTTP method
-	// directly and pass in our Request and ResponseRecorder.
 	router(cfg).ServeHTTP(rr, req)
-
-	assert.Equal(t, http.StatusOK, rr.Code)
 	body, err := ioutil.ReadAll(rr.Body)
 	if err != nil {
 		t.Fatal(err)
 	}
-	assert.Equal(t, ip, string(body))
-
-	req.Header.Del(cfg.HTTP.ForwardedHeader)
-	req.RemoteAddr = fmt.Sprintf("%s:1234", localIP)
-	router(cfg).ServeHTTP(rr, req)
-	body, err = ioutil.ReadAll(rr.Body)
-	if err != nil {
-		t.Fatal(err)
-	}
 
 	assert.Equal(t, http.StatusOK, rr.Code)
-	assert.Equal(t, localIP, string(body))
-}
-
-func router(cfg *config.Config) *mux.Router {
-	r := mux.NewRouter()
-	r.HandleFunc("/", NewRootHandler(cfg).GetIP).Methods(http.MethodGet)
-	r.HandleFunc("/version", NewVersionHandler(cfg).GetVersion).Methods(http.MethodGet)
-	return r
+	assert.Equal(t, wantVersion, string(body))
 }
