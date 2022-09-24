@@ -16,7 +16,10 @@ limitations under the License.
 
 package models
 
-import "fmt"
+import (
+	"encoding/json"
+	"fmt"
+)
 
 // VersionResponse helds build version tag and git commit short hash
 type VersionResponse struct {
@@ -27,4 +30,13 @@ type VersionResponse struct {
 // String implements fmt.Stringer interface
 func (r *VersionResponse) String() string {
 	return fmt.Sprintf("ipd version %s\ncommit:\t%s\n", r.Version, r.Commit)
+}
+
+// Make builds response string in text or JSON formats
+func (r *VersionResponse) Make(j bool) string {
+	if j {
+		data, _ := json.Marshal(r)
+		return string(data)
+	}
+	return r.String()
 }

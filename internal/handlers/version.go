@@ -17,7 +17,7 @@ limitations under the License.
 package handlers
 
 import (
-	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"github.com/nemca/ipd/internal/config"
@@ -40,12 +40,12 @@ func (h *VersionHandler) GetVersion(w http.ResponseWriter, r *http.Request) {
 		Version: h.config.Version,
 		Commit:  h.config.Build,
 	}
+	toJSON := false
 
-	data, err := json.Marshal(&resp)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+	output := r.URL.Query().Get("output")
+	if output == "json" {
+		toJSON = true
 	}
 
-	w.Write(data)
+	fmt.Fprintf(w, resp.Make(toJSON))
 }

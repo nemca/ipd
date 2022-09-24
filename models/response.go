@@ -18,14 +18,17 @@ package models
 
 import "encoding/json"
 
+// Response helds IP address for response
 type Response struct {
 	IP string `json:"ip"`
 }
 
+// String implements fmt.Stringer interface
 func (r *Response) String() string {
 	return r.IP
 }
 
+// Make builds response string in text or JSON formats
 func (r *Response) Make(j bool) string {
 	if j {
 		data, _ := json.Marshal(r)

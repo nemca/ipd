@@ -36,7 +36,7 @@ func TestGetVersion(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	req, err := http.NewRequest("GET", "/version", nil)
+	req, err := http.NewRequest("GET", "/version?output=json", nil)
 	if err != nil {
 		t.Fatal(err)
 	}
