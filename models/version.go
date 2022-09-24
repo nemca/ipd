@@ -24,7 +24,7 @@ import (
 // VersionResponse helds build version tag and git commit short hash
 type VersionResponse struct {
 	Version string `json:"version"`
-	Commit  string `json:"commint"`
+	Commit  string `json:"commit"`
 }
 
 // String implements fmt.Stringer interface
